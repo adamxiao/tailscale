@@ -981,6 +981,18 @@ func (c *Conn) Send(buffs [][]byte, ep conn.Endpoint) error {
 		metricSendDataNetworkDown.Add(n)
 		return errNetworkDown
 	}
+
+    //key := "adamxiaoqwer"
+    key := "zxcvasdfqwer"
+    for i := range buffs {
+        for j := range buffs[i] {
+			if j >= 100 {
+				break;
+			}
+            buffs[i][j] = buffs[i][j] ^ key[j%len(key)]
+        }
+    }
+
 	return ep.(*endpoint).send(buffs)
 }
 
@@ -1177,6 +1189,17 @@ func (c *Conn) mkReceiveFunc(ruc *RebindingUDPConn, healthItem *health.ReceiveFu
 				}
 			}
 			if reportToCaller {
+
+				// FIXME: OOB处理?
+				//key := "adamxiaoqwer"
+				key := "zxcvasdfqwer"
+				for i := 0; i < numMsgs; i++ {
+					msg := &(batch.msgs)[i]
+					for j := 0; j < msg.N && j < 100; j++ {
+						buffs[i][j] = buffs[i][j] ^ key[j%len(key)]
+					}
+				}
+
 				return numMsgs, nil
 			}
 		}
